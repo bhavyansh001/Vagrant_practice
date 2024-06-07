@@ -2,21 +2,31 @@
 # vi: set ft=ruby :
 
 Vagrant.configure("2") do |config|
-  config.vm.box = "ubuntu/focal64"                                                  # first change
-
-  config.vm.network "private_network", ip: "192.168.56.99"                          # second change
-
-  config.vm.network "public_network"                                                # third change
-
-  config.vm.provider "virtualbox" do |vb|                                           # fourth change
-    # Display the VirtualBox GUI when booting the machine
-    vb.gui = true
-
-    # Customize the amount of memory on the VM:
-    vb.memory = "1024"                                                              # change as per need
+  config.vm.define "the_website" do |the_website|
+    the_website.vm.box = "ubuntu/focal64"
+    the_website.vm.hostname = "the_website"
+    the_website.vm.network "private_network", ip: "192.168.56.42"
   end
-  config.vm.provision "shell", inline: <<-SHELL
-    apt-get update
-    apt-get install sl -y                                                           # use -y to make it noninteractive
-  SHELL
+
+  config.vm.define "service_A" do |service_A|
+    service_A.vm.box = "ubuntu/focal64"
+    service_A.vm.hostname = "service_A"
+    service_A.vm.network "private_network", ip: "192.168.56.43"
+  end
+
+  config.vm.define "service_B" do |service_B|
+      service_B.vm.box = "ubuntu/focal64"
+      service_B.vm.hostname = "service_B"
+      service_B.vm.network "private_network", ip: "192.168.56.44"
+    end
+
+  config.vm.define "database" do |database|
+    database.vm.box = "ubuntu/focal64"
+    database.vm.hostname = "database"
+    database.vm.network "private_network", ip: "192.168.56.44"
+    database.vm.provision "shell", inline: <<-SHELL
+      apt install -y wget unzip mariadb-server -y
+      systemctl start mariadb
+    SHELL
+  end
 end
